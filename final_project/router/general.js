@@ -44,24 +44,30 @@ public_users.get('/', async function (req, res) {
     }
 });
 
-const fetchBookDetails = async (isbn) => {
-    try {
-        const response = await axios.get('https://pranavh2005-6000.theianext-1-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/books/${isbn}');
-        return response.data; // Assuming API returns book details
-    } catch (error) {
-        throw new Error(`Failed to fetch book details for ISBN ${isbn}`);
-    }
+
+// Function to fetch book details based on ISBN using promises with Axios
+const fetchBookDetails = (isbn) => {
+  return new Promise((resolve, reject) => {
+      axios.get('https://pranavh2005-6000.theianext-1-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/books/${isbn}')
+          .then(response => {
+              resolve(response.data); // Assuming API returns book details
+          })
+          .catch(error => {
+              reject('Failed to fetch book details for ISBN ${isbn}');
+          });
+  });
 };
 
-// Get book details based on ISBN using async-await with Axios
-public_users.get('/isbn/:isbn', async function (req, res) {
-    const isbn = req.params.isbn;
-    try {
-        const bookDetails = await fetchBookDetails(isbn);
-        res.send(JSON.stringify(bookDetails, null, 4));
-    } catch (error) {
-        res.status(404).send(`Book details not found for ISBN ${isbn}`);
-    }
+// Get book details based on ISBN using promises with Axios
+public_users.get('/isbn/:isbn', function (req, res) {
+  const isbn = req.params.isbn;
+  fetchBookDetails(isbn)
+      .then(bookDetails => {
+          res.send(JSON.stringify(bookDetails, null, 4));
+      })
+      .catch(error => {
+          res.status(404).send('Book details not found for ISBN ${isbn}');
+      });
 });
 
 const fetchAuthorDetails = async (author) => {
@@ -69,7 +75,7 @@ const fetchAuthorDetails = async (author) => {
         const response = await axios.get('https://pranavh2005-6000.theianext-1-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/author/${author}');
         return response.data; // Assuming API returns book details
     } catch (error) {
-        throw new Error(`Failed to fetch book details for Author ${author}`);
+        throw new Error('Failed to fetch book details for Author ${author}');
     }
 };
 // Get book details based on author
@@ -95,7 +101,7 @@ public_users.get('/author/:author', async function (req, res) {
     }
   }
   catch(error) {
-    res.status(404).send(`Book details not found for Author ${author}`);
+    res.status(404).send('Book details not found for Author ${author}');
   }
 });
 
@@ -105,7 +111,7 @@ const fetchTitleDetails = async (title) => {
         const response = await axios.get('https://pranavh2005-6000.theianext-1-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/title/${title}');
         return response.data; // Assuming API returns book details
     } catch (error) {
-        throw new Error(`Failed to fetch book details for Title ${title}`);
+        throw new Error('Failed to fetch book details for Title ${title}');
     }
 };
 // Get all books based on title
@@ -128,7 +134,7 @@ public_users.get('/title/:title', async function (req, res) {
     }
   }
   catch(error) {
-    res.status(404).send(`Book details not found for Title ${title}`);
+    res.status(404).send('Book details not found for Title ${title}');
   }                                                
 });
 
